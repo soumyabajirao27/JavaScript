@@ -1,1 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Profile - SIT Nagpur</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-dark: #0f172a;
+        }
 
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            padding: 40px;
+        }
+
+        h1 {
+            color: var(--text-dark);
+            margin-top: 0;
+            font-size: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        /* Modern Table Styling */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+
+        .info-table th, .info-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-table th {
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            font-weight: 600;
+            width: 30%;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+            transform: translateX(-3px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">SIT NAGPUR</div>
+        <div>Dashboard</div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="profile-card">
+            <h1>Student Information Profile</h1>
+            <p>Verify your enrollment status and core registration details below. Contact the department office to modify locked fields.</p>
+
+            <!-- Sample Data Layout -->
+            <table class="info-table">
+                <tr>
+                    <th>Institute</th>
+                    <td>Symbiosis Institute of Technology (SIT), Nagpur</td>
+                </tr>
+                <tr>
+                    <th>Department</th>
+                    <td>Computer Science & Engineering</td>
+                </tr>
+                <tr>
+                    <th>Academic Status</th>
+                    <td>Active Enrollment</td>
+                </tr>
+                <tr>
+                    <th>Portal Access</th>
+                    <td>Authorized Student Profile</td>
+                </tr>
+            </table>
+
+            <a class="back-link" href="index.html">&larr; Return to Department Home</a>
+        </div>
+    </div>
+
+</body>
+</html>
