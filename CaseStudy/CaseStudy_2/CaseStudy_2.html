@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Shopping & Billing Portal</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+
+        fieldset {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            font-weight: bold;
+            color: var(--primary-color);
+            padding: 0 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--success-color);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .invoice-output {
+            margin-top: 30px;
+            background: #eef2f7;
+            padding: 20px;
+            border-radius: 6px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .invoice-output h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .bill-row.total {
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            margin-top: 10px;
+            color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Online Shopping Store</h1>
+    
+    <form id="billingForm" onsubmit="calculateBill(event)">
+        <!-- Customer Details -->
+        <fieldset>
+            <legend>Customer Information</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="custName">Customer Name:</label>
+                    <input type="text" id="custName" required placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label for="mobileNo">Mobile Number:</label>
+                    <input type="tel" id="mobileNo" pattern="[0-9]{10}" required placeholder="10-digit mobile number">
+                </div>
+                <div class="form-group">
+                    <label for="invoiceNo">Invoice Number:</label>
+                    <input type="text" id="invoiceNo" value="INV-2026-001" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="membership">Membership Type:</label>
+                    <select id="membership">
+                        <option value="0">None (0% Extra Off)</option>
+                        <option value="5">Silver (5% Extra Off)</option>
+                        <option value="10">Gold (10% Extra Off)</option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- Product & Purchase Details -->
+        <fieldset>
+            <legend>Product & Charges Details</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="productName">Product Name:</label>
+                    <input type="text" id="productName" required placeholder="e.g. Organic Cashews">
+                </div>
+                <div class="form-group">
+                    <label for="quantityKg">Quantity (in kg):</label>
+                    <input type="number" id="quantityKg" step="0.1" min="0.1" required placeholder="e.g. 2.5">
+                </div>
+                <div class="form-group">
+                    <label for="rateKg">Rate per kg (₹):</label>
+                    <input type="number" id="rateKg" step="1" min="1" required placeholder="e.g. 500">
+                </div>
+                <div class="form-group">
+                    <label for="gstRate">GST Rate (%):</label>
+                    <select id="gstRate">
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18">18%</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="packingCharges">Packing Charges (₹):</label>
+                    <input type="number" id="packingCharges" value="30" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="paymentMode">Payment Mode:</label>
+                    <select id="paymentMode">
+                        <option value="UPI">UPI</option>
+                        <option value="Credit Card">Credit Card</option>
+                        <option value="Debit Card">Debit Card</option>
+                        <option value="Cash on Delivery">Cash on Delivery</option>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+
+        <button type="submit">Calculate and Generate Bill</button>
+    </form>
+
+    <!-- Computed Invoice Display Area -->
+    <div class="invoice-output" id="invoiceSection" style="display: none;">
+        <h2>Invoice Summary</h2>
+        <div class="bill-row"><span>Invoice No:</span> <span id="outInv"></span></div>
+        <div class="bill-row"><span>Customer:</span> <span id="outName"></span></div>
+        <div class="bill-row"><span>Mobile:</span> <span id="outMobile"></span></div>
+        <div class="bill-row"><span>Product:</span> <span id="outProduct"></span></div>
+        <div class="bill-row"><span>Qty & Rate:</span> <span id="outQtyRate"></span></div>
+        <div class="bill-row"><span>Base Amount:</span> <span id="outBase"></span></div>
+        <div class="bill-row"><span>Membership Disc:</span> <span id="outMemberDisc"></span></div>
+        <div class="bill-row"><span>GST Amount:</span> <span id="outGst"></span></div>
+        <div class="bill-row"><span>Packing Charges:</span> <span id="outPacking"></span></div>
+        <div class="bill-row"><span>Payment Mode:</span> <span id="outPayMode"></span></div>
+        <div class="bill-row total"><span>Final Payable Total:</span> <span id="outTotal"></span></div>
+    </div>
+</div>
+
+<script>
+    function calculateBill(event) {
+        event.preventDefault();
+
+        // Fetch inputs
+        const name = document.getElementById('custName').value;
+        const mobile = document.getElementById('mobileNo').value;
+        const inv = document.getElementById('invoiceNo').value;
+        const product = document.getElementById('productName').value;
+        const qty = parseFloat(document.getElementById('quantityKg').value);
+        const rate = parseFloat(document.getElementById('rateKg').value);
+        const memberDiscPercent = parseFloat(document.getElementById('membership').value);
+        const gstPercent = parseFloat(document.getElementById('gstRate').value);
+        const packing = parseFloat(document.getElementById('packingCharges').value);
+        const payMode = document.getElementById('paymentMode').value;
+
+        // Calculations
+        const baseAmount = qty * rate;
+        const discountAmount = (baseAmount * memberDiscPercent) / 100;
+        const amountAfterDiscount = baseAmount - discountAmount;
+        const gstAmount = (amountAfterDiscount * gstPercent) / 100;
+        const finalTotal = amountAfterDiscount + gstAmount + packing;
+
+        // Bind outputs
+        document.getElementById('outInv').innerText = inv;
+        document.getElementById('outName').innerText = name;
+        document.getElementById('outMobile').innerText = mobile;
+        document.getElementById('outProduct').innerText = product;
+        document.getElementById('outQtyRate').innerText = qty + ' kg @ ₹' + rate + '/kg';
+        document.getElementById('outBase').innerText = '₹' + baseAmount.toFixed(2);
+        document.getElementById('outMemberDisc').innerText = '- ₹' + discountAmount.toFixed(2) + ' (' + memberDiscPercent + '%)';
+        document.getElementById('outGst').innerText = '+ ₹' + gstAmount.toFixed(2) + ' (' + gstPercent + '%)';
+        document.getElementById('outPacking').innerText = '+ ₹' + packing.toFixed(2);
+        document.getElementById('outPayMode').innerText = payMode;
+        document.getElementById('outTotal').innerText = '₹' + finalTotal.toFixed(2);
+
+        // Show invoice section
+        document.getElementById('invoiceSection').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palindrome Checker</title>
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+    .student-header {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 14px;
+        padding: 12px 24px;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #fff;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    .student-header .name {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    .student-header .prn {
+        font-size: 13px;
+        opacity: 0.9;
+        margin-top: 3px;
+    }
+    .container {
+        width: 380px;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        text-align: center;
+    }
+    .container h2 {
+        font-size: 22px;
+        color: #333;
+        margin-bottom: 6px;
+    }
+    .subtitle {
+        font-size: 13px;
+        color: #8a8fa3;
+        margin-bottom: 20px;
+    }
+    .input-box {
+        background: #f4f6fb;
+        border: 2px solid #e3e7f0;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 16px;
+    }
+    input {
+        width: 100%;
+        padding: 12px;
+        font-size: 18px;
+        text-align: center;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #333;
+        font-weight: 600;
+    }
+    input::placeholder {
+        color: #b0b6c8;
+        font-weight: 400;
+        font-size: 15px;
+    }
+    button {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        margin-bottom: 18px;
+    }
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+    button:active {
+        transform: translateY(0);
+    }
+    h3#result {
+        min-height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f4f6fb;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 16px;
+        color: #333;
+        font-weight: 600;
+    }
+    .checks {
+        margin-top: 14px;
+        font-size: 13px;
+        color: #8a8fa3;
+    }
+</style>
+</head>
+<body>
+
+<div class="student-header">
+    <div class="name">Soumya Bajirao</div>
+    <div class="prn">PRN: 24070521146</div>
+</div>
+
+<div class="container">
+    <h2>Palindrome Checker</h2>
+    <div class="subtitle">Check if a word reads the same forward &amp; backward</div>
+
+    <div class="input-box">
+        <input type="text" id="word" placeholder="Enter a word">
+    </div>
+
+    <button onclick="checkPalindrome()">Check</button>
+
+    <h3 id="result"></h3>
+    <div id="checks" class="checks"></div>
+</div>
+
+<script>
+
+// Global Scope
+let appName = "Palindrome Checker";
+
+// Function Declaration
+function cleanString(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+// Function Expression
+const reverseString = function(str) {
+    return str.split("").reverse().join("");
+};
+
+// Closure
+function counter() {
+    let count = 0;
+
+    return function() {
+        count++;
+        return count;
+    };
+}
+
+const checkCount = counter();
+
+// Arrow Function
+const isPalindrome = (str) => {
+    return str === reverseString(str);
+};
+
+// Main Function
+function checkPalindrome() {
+
+    try {
+
+        let input = document.getElementById("word").value;
+
+        // Local Scope
+        let text = cleanString(input);
+
+        if (text === "") {
+            throw "Please enter some text.";
+        }
+
+        let result = isPalindrome(text)
+            ? `"${input}" is a Palindrome ✅`
+            : `"${input}" is NOT a Palindrome ❌`;
+
+        document.getElementById("result").innerHTML = result;
+        document.getElementById("checks").innerHTML =
+            `Checks Performed: ${checkCount()}`;
+
+    } catch(error) {
+
+        document.getElementById("result").innerHTML =
+            `<span style="color:red;">Error: ${error}</span>`;
+
+    }
+
+    finally {
+        console.log(appName + " executed.");
+    }
+}
+
+</script>
+
+</body>
+</html>
