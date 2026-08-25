@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOM Traversal To-Do App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      padding-top: 50px;
+    }
+
+    .todo-container {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 400px;
+    }
+
+    form {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      border-radius: 0 4px 4px 0;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: #f9f9f9;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Left-side wrapper alignment */
+    .task-left-group {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      margin-right: 10px;
+    }
+
+    .todo-checkbox {
+      margin-right: 12px;
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+
+    li .task-text {
+      flex: 1;
+      padding: 3px;
+      transition: all 0.2s ease;
+    }
+
+    /* Visual cut-through state for completed items */
+    li.completed .task-text {
+      text-decoration: line-through;
+      color: #888888;
+      opacity: 0.6;
+    }
+
+    li .task-text[contenteditable="true"] {
+      background: #fff;
+      border: 1px dashed #007bff;
+      outline: none;
+    }
+
+    .actions {
+      display: flex;
+    }
+
+    .actions button {
+      padding: 5px 10px;
+      margin-left: 5px;
+      font-size: 12px;
+      border-radius: 3px;
+    }
+
+    .edit-btn { background-color: #ffc107; color: black; }
+    .edit-btn:hover { background-color: #e0a800; }
+    .delete-btn { background-color: #dc3545; color: white; }
+    .delete-btn:hover { background-color: #bd2130; }
+  </style>
+</head>
+<body>
+
+  <div class="todo-container">
+    <h2>My Task List</h2>
+    
+    <!-- Input Form Area -->
+    <form id="todo-form">
+      <input type="text" id="todo-input" placeholder="Add a new task..." autocomplete="off" required>
+      <button type="submit" id="add-btn">Add Task</button>
+    </form>
+
+    <!-- Dynamic List Container -->
+    <ul id="todo-list"></ul>
+  </div>
+
+  <script>
+    // 1. Select core DOM elements
+    const todoForm = document.querySelector('#todo-form');
+    const todoInput = document.querySelector('#todo-input');
+    const todoList = document.querySelector('#todo-list');
+
+    // 2. Add Feature: Form submission handling
+    todoForm.addEventListener('submit', function(e) {
+      e.preventDefault(); 
+
+      const taskText = todoInput.value.trim();
+      if (taskText === "") return;
+
+      createTaskElement(taskText);
+      todoForm.reset(); 
+    });
+
+    // Helper function to build dynamic node structures safely
+    function createTaskElement(text) {
+      const li = document.createElement('li');
+      
+      // Layout grouping container for left-aligned items
+      const leftGroup = document.createElement('div');
+      leftGroup.classList.add('task-left-group');
+
+      // Checkbox creation
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.classList.add('todo-checkbox');
+
+      const taskSpan = document.createElement('span');
+      taskSpan.classList.add('task-text');
+      taskSpan.textContent = text;
+
+      // Group layout nesting
+      leftGroup.appendChild(checkbox);
+      leftGroup.appendChild(taskSpan);
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.classList.add('actions');
+
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.classList.add('edit-btn');
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.classList.add('delete-btn');
+
+      // Assemble structural nodes
+      actionsDiv.appendChild(editBtn);
+      actionsDiv.appendChild(deleteBtn);
+      li.appendChild(leftGroup);
+      li.appendChild(actionsDiv);
+      
+      todoList.appendChild(li);
+    }
+
+    // 3. Performance Optimization: Unified Event Delegation
+    // Captures click and state change signals at the parent container boundary
+    todoList.addEventListener('change', function(e) {
+      const targetElement = e.target;
+
+      // Checkbox Toggling Execution
+      if (targetElement.classList.contains('todo-checkbox')) {
+        // Traversal Technique: Upward targeting targeting matching container element
+        const targetLi = targetElement.closest('li');
+        if (!targetLi) return;
+
+        // Toggle state class based on input state
+        if (targetElement.checked) {
+          targetLi.classList.add('completed');
+        } else {
+          targetLi.classList.add('completed');
+          targetLi.classList.remove('completed');
+        }
+      }
+    });
+
+    todoList.addEventListener('click', function(e) {
+      const targetElement = e.target;
+      const targetLi = targetElement.closest('li');
+      if (!targetLi) return;
+
+      // Traversal Technique: Downward contextual selection within the scoped parent item
+      const taskSpan = targetLi.querySelector('.task-text');
+      const editBtn = targetLi.querySelector('.edit-btn');
+
+      // Handle Delete Event execution
+      if (targetElement.classList.contains('delete-btn')) {
+        targetLi.remove(); 
+      }
+
+      // Handle Edit and Save toggles dynamically
+      if (targetElement.classList.contains('edit-btn')) {
+        // Validation: Block editing on completed items
+        if (targetLi.classList.contains('completed')) {
+          alert('You cannot edit a completed task.');
+          return;
+        }
+
+        const isEditing = taskSpan.getAttribute('contenteditable') === 'true';
+
+        if (!isEditing) {
+          taskSpan.setAttribute('contenteditable', 'true');
+          taskSpan.focus();
+          targetElement.textContent = 'Save';
+          targetElement.style.backgroundColor = '#007bff';
+          targetElement.style.color = '#fff';
+        } else {
+          const updatedText = taskSpan.textContent.trim();
+          if (updatedText === '') {
+            alert('Task text cannot be left blank.');
+            return;
+          }
+          taskSpan.textContent = updatedText;
+          taskSpan.setAttribute('contenteditable', 'false');
+          targetElement.textContent = 'Edit';
+          targetElement.removeAttribute('style'); 
+        }
+      }
+    });
+  </script>
+</body>
+</html>
