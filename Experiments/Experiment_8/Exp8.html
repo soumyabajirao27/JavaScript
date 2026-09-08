@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigma Grindset Academy - Admission Form</title>
+    <style>
+        :root {
+            --primary: #ffcc00; /* Alpha Gold */
+            --dark-bg: #0d0d0d; /* Pure Void Black */
+            --card-bg: #161616; /* Dark Obsidian */
+            --text: #ffffff;
+            --success: #00ff66; /* Neon Green */
+            --error: #ff3333; /* Crimson Warning */
+            --muted: #666666;
+        }
+
+        body {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .form-container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 0px; /* Sharp corners only. Radiuses are for the weak. */
+            border: 3px solid var(--muted);
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.05);
+            transition: border-color 0.5s ease;
+        }
+
+        .form-container:hover {
+            border-color: var(--primary);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--text);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-size: 32px;
+            font-style: italic;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--primary);
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            font-family: sans-serif;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 25px;
+            font-family: sans-serif;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #aaa;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            background-color: #222;
+            border: 2px solid #333;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-weight: bold;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--text);
+            background-color: #2a2a2a;
+        }
+
+        /* Sigma Validation States */
+        .form-group.success input, .form-group.success select {
+            border-color: var(--success);
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+        }
+
+        .form-group.error input, .form-group.error select {
+            border-color: var(--error);
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.2);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 11px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            font-weight: bold;
+            display: none;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--primary);
+            color: #000;
+            border: none;
+            font-family: 'Impact', sans-serif;
+            font-size: 22px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #fff;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>SIGMA ACADEMY</h2>
+    <div class="subtitle">Ego checks at the door.</div>
+    
+    <form id="gymForm" novalidate>
+        
+        <!-- Full Name -->
+        <div class="form-group" id="nameGroup">
+            <label for="fullName">Identify Yourself (Name)</label>
+            <input type="text" id="fullName" placeholder="e.g., Patrick Bateman">
+            <div class="error-message">Fake name detected. Drop a real one (min 3 chars).</div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group" id="emailGroup">
+            <label for="email">Digital Coordinates (Email)</label>
+            <input type="email" id="email" placeholder="grind247@sigma.com">
+            <div class="error-message">That format isn't optimal. Fix the email.</div>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="form-group" id="mobileGroup">
+            <label for="mobile">Secure Line (Mobile No.)</label>
+            <input type="tel" id="mobile" placeholder="10-digit hotline">
+            <div class="error-message">10 numbers exactly. No dead lines.</div>
+        </div>
+
+        <!-- Age -->
+        <div class="form-group" id="ageGroup">
+            <label for="age">Years on the Grind (Age)</label>
+            <input type="number" id="age" placeholder="Must be 14+ to lift iron">
+            <div class="error-message">Must be between 14 and 100. Age limits apply.</div>
+        </div>
+
+        <!-- Membership Plan -->
+        <div class="form-group" id="planGroup">
+            <label for="plan">Commitment Level</label>
+            <select id="plan">
+                <option value="">-- Choose Your Discipline --</option>
+                <option value="monthly">30-Day Blueprint</option>
+                <option value="quarterly">Seasonal Execution</option>
+                <option value="annual">Year of the Lone Wolf</option>
+            </select>
+            <div class="error-message">Indecision is weakness. Choose a plan.</div>
+        </div>
+
+        <button type="submit">ENTER THE IRON PARADISE</button>
+    </form>
+</div>
+
+<script>
+    const form = document.getElementById('gymForm');
+    
+    const fields = {
+        name: { element: document.getElementById('fullName'), group: document.getElementById('nameGroup'), validate: val => val.trim().length >= 3 },
+        email: { element: document.getElementById('email'), group: document.getElementById('emailGroup'), validate: val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) },
+        mobile: { element: document.getElementById('mobile'), group: document.getElementById('mobileGroup'), validate: val => /^\d{10}$/.test(val.trim()) },
+        age: { element: document.getElementById('age'), group: document.getElementById('ageGroup'), validate: val => val >= 14 && val <= 100 },
+        plan: { element: document.getElementById('plan'), group: document.getElementById('planGroup'), validate: val => val !== "" }
+    };
+
+    function setSuccess(field) {
+        field.group.classList.add('success');
+        field.group.classList.remove('error');
+    }
+
+    function setError(field) {
+        field.group.classList.add('error');
+        field.group.classList.remove('success');
+    }
+
+    function checkField(field) {
+        if (field.validate(field.element.value)) {
+            setSuccess(field);
+            return true;
+        } else {
+            setError(field);
+            return false;
+        }
+    }
+
+    Object.keys(fields).forEach(key => {
+        const field = fields[key];
+        field.element.addEventListener('input', () => checkField(field));
+        field.element.addEventListener('blur', () => checkField(field));
+    });
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        
+        let isFormValid = true;
+        Object.keys(fields).forEach(key => {
+            if (!checkField(fields[key])) isFormValid = false;
+        });
+
+        if (isFormValid) {
+            alert('⚡ Access Granted. The grind never stops.');
+            form.reset();
+            Object.keys(fields).forEach(key => fields[key].group.classList.remove('success'));
+        }
+    });
+</script>
+
+</body>
+</html>
