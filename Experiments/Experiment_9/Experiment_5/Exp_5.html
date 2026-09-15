@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart Total Calculator – Array Methods & Object Handling Demo</title>
+  <style>
+    :root { --bg: #f7f8fa; --card: #fff; --primary: #4f46e5; --danger: #e53e3e; --text: #1a202c; --muted: #718096; --border: #e2e8f0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 2rem 1rem; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; }
+    .card { background: var(--card); border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .card h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 1rem; }
+    .form-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 0.75rem; }
+    .form-group { display: flex; flex-direction: column; flex: 1; min-width: 100px; }
+    .form-group label { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.2rem; }
+    .form-group input, .form-group select { padding: 0.5rem 0.6rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+    button { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    button:hover { opacity: 0.85; }
+    .btn-add { background: var(--primary); color: #fff; align-self: flex-end; }
+    .btn-remove { background: transparent; color: var(--danger); padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+    .btn-calc { width: 100%; padding: 0.9rem; background: var(--primary); color: #fff; font-size: 1rem; border-radius: 8px; margin-top: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.5rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--muted); padding: 0.4rem 0; border-bottom: 2px solid var(--border); }
+    td { padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+    td:last-child, th:last-child { text-align: right; }
+    .summary-line { display: flex; justify-content: space-between; padding: 0.4rem 0; }
+    .summary-line.total { font-size: 1.25rem; font-weight: 700; border-top: 2px solid var(--text); margin-top: 0.5rem; padding-top: 0.6rem; }
+    .discount-val { color: var(--danger); }
+    .empty { color: var(--muted); font-style: italic; font-size: 0.9rem; padding: 0.5rem 0; }
+    .tag { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-right: 0.3rem; }
+    .tag-percentage { background: #f0fff4; color: #276749; }
+    .tag-fixed { background: #fffff0; color: #975a16; }
+    .tag-bogo { background: #ebf8ff; color: #2b6cb0; }
+    .method-note { font-size: 0.7rem; color: var(--muted); font-family: monospace; margin-top: 0.15rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🛒 Cart Total Calculator</h1>
+  <p class="subtitle">Soumya Bajirao &amp; 24070521146</p>
+
+  <!-- ADD CART ITEM -->
+  <div class="card">
+    <h2>Add Cart Item</h2>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label for="itemName">Item Name</label>
+        <input type="text" id="itemName" placeholder="e.g. Wireless Mouse">
+      </div>
+      <div class="form-group">
+        <label for="itemPrice">Price ($)</label>
+        <input type="number" id="itemPrice" min="0" step="0.01" placeholder="29.99">
+      </div>
+      <div class="form-group">
+        <label for="itemQty">Quantity</label>
+        <input type="number" id="itemQty" min="1" step="1" value="1">
+      </div>
+      <button class="btn-add" id="addItemBtn">Add Item</button>
+    </div>
+    <p class="method-note">Objects stored as { id, name, price, quantity }</p>
+  </div>
+
+  <!-- CART ITEMS TABLE -->
+  <div class="card">
+    <h2>Cart Items</h2>
+    <table id="cartTable">
+      <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th>Line Total</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="empty" id="cartEmpty">No items yet. Add something above!</p>
+  </div>
+
+  <!-- ADD DISCOUNT RULE -->
+  <div class="card">
+    <h2>Add Discount Rule</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ruleType">Type</label>
+        <select id="ruleType">
+          <option value="percentage">Percentage (%)</option>
+          <option value="fixed">Fixed ($)</option>
+          <option value="bogo">BOGO (Buy-One-Get-One)</option>
+        </select>
+      </div>
+      <div class="form-group" id="ruleValueGroup">
+        <label for="ruleValue">Value</label>
+        <input type="number" id="ruleValue" min="0" step="0.01" placeholder="15">
+      </div>
+      <div class="form-group">
+        <label for="ruleMin">Min Items (optional)</label>
+        <input type="number" id="ruleMin" min="0" step="1" placeholder="e.g. 3">
+      </div>
+      <button class="btn-add" id="addRuleBtn">Add Rule</button>
+    </div>
+    <p class="method-note">Rules filtered with .filter(), best selected with Math.max()</p>
+  </div>
+
+  <!-- ACTIVE RULES -->
+  <div class="card">
+    <h2>Active Discount Rules</h2>
+    <div id="rulesList"><p class="empty" id="rulesEmpty">No rules added yet.</p></div>
+  </div>
+
+  <!-- CALCULATE + SUMMARY -->
+  <div class="card">
+    <h2>Order Summary</h2>
+    <div id="summaryOutput"><p class="empty">Add items and click Calculate.</p></div>
+    <button class="btn-calc" id="calcBtn">Calculate Total</button>
+  </div>
+</div>
+
+<script>
+// ─── STATE (Arrays of Objects) ────────────────────────────────────────
+let cartItems = [];
+let discountRules = [];
+let nextId = 1;
+
+// ─── CORE CALCULATION FUNCTIONS ───────────────────────────────────────
+// Each function demonstrates specific array methods + object property access
+
+/**
+ * REDUCE: Accumulates line totals by accessing item.price & item.quantity
+ */
+function calculateSubtotal(items) {
+  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+/**
+ * FLATMAP + SORT: Expands objects into unit prices for BOGO pairing
+ */
+function calculateBogoDiscount(items) {
+  const allPrices = items
+    .flatMap(item => Array(item.quantity).fill(item.price))
+    .sort((a, b) => a - b);
+  let discount = 0;
+  for (let i = 0; i < allPrices.length; i += 2) {
+    if (i + 1 < allPrices.length) discount += allPrices[i];
+  }
+  return discount;
+}
+
+/**
+ * FILTER + MAP: Filters applicable rules, maps to discount values, picks best
+ */
+function calculateDiscount(subtotal, items, rules) {
+  // REDUCE to get total quantity across all item objects
+  const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const applicableValues = rules
+    .filter(rule => !rule.minItems || totalQty >= rule.minItems)
+    .map(rule => {
+      switch (rule.type) {
+        case 'percentage': return subtotal * (rule.value / 100);
+        case 'fixed':      return Math.min(rule.value, subtotal);
+        case 'bogo':       return calculateBogoDiscount(items);
+        default:           return 0;
+      }
+    });
+
+  const best = Math.max(0, ...applicableValues);
+  return Math.min(best, subtotal);
+}
+
+/**
+ * Composes everything into a summary object using REDUCE for itemCount
+ */
+function getCartTotal(items, rules) {
+  const subtotal = calculateSubtotal(items);
+  const discount = calculateDiscount(subtotal, items, rules);
+  const total = Math.max(0, subtotal - discount);
+  return {
+    itemCount: items.reduce((c, item) => c + item.quantity, 0),
+    subtotal: Number(subtotal.toFixed(2)),
+    discount: Number(discount.toFixed(2)),
+    total:    Number(total.toFixed(2)),
+  };
+}
+
+// ─── RENDERING (MAP over state arrays to produce HTML strings) ────────
+
+function renderCart() {
+  const tbody = document.querySelector('#cartTable tbody');
+  const emptyMsg = document.getElementById('cartEmpty');
+  emptyMsg.style.display = cartItems.length ? 'none' : 'block';
+
+  // MAP each cart item object → table row string
+  tbody.innerHTML = cartItems.map(item => `
+    <tr>
+      <td>${item.name}</td>
+      <td>$${item.price.toFixed(2)}</td>
+      <td>${item.quantity}</td>
+      <td>$${(item.price * item.quantity).toFixed(2)}</td>
+      <td><button class="btn-remove" onclick="removeItem(${item.id})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderRules() {
+  const container = document.getElementById('rulesList');
+  const emptyMsg = document.getElementById('rulesEmpty');
+  emptyMsg.style.display = discountRules.length ? 'none' : 'block';
+
+  // MAP each rule object → tagged display string
+  container.innerHTML = discountRules.map((rule, idx) => {
+    const tagClass = `tag-${rule.type}`;
+    const label = rule.type === 'percentage' ? `${rule.value}% off`
+                : rule.type === 'fixed' ? `$${rule.value.toFixed(2)} off`
+                : 'BOGO Free';
+    const min = rule.minItems ? ` · min ${rule.minItems} items` : '';
+    return `<div style="padding:0.3rem 0;display:flex;align-items:center;justify-content:space-between;">
+      <span><span class="tag ${tagClass}">${rule.type}</span>${label}${min}</span>
+      <button class="btn-remove" onclick="removeRule(${idx})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderSummary(summary) {
+  document.getElementById('summaryOutput').innerHTML = `
+    <div class="summary-line"><span>Items</span><span>${summary.itemCount}</span></div>
+    <div class="summary-line"><span>Subtotal</span><span>$${summary.subtotal.toFixed(2)}</span></div>
+    <div class="summary-line"><span>Best Discount</span><span class="discount-val">−$${summary.discount.toFixed(2)}</span></div>
+    <div class="summary-line total"><span>Total</span><span>$${summary.total.toFixed(2)}</span></div>
+  `;
+}
+
+// ─── USER INPUT HANDLERS ──────────────────────────────────────────────
+
+document.getElementById('addItemBtn').addEventListener('click', () => {
+  const name  = document.getElementById('itemName').value.trim();
