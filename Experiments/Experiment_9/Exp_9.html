@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Storage Manager</title>
+    <style>
+        /* Base page layout styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* 1. Default Light Theme Colors */
+        body {
+            background-color: #ffffff;
+            color: #222222;
+        }
+
+        /* 2. Dark Theme Colors */
+        body.dark-theme {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .card {
+            text-align: center;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background-color: rgba(0, 0, 0, 0.02);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        body.dark-theme .card {
+            box-shadow: 0 4px 15px rgba(255,255,255,0.05);
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Form Controls Styling */
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            width: 100%;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-local {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-session {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-clear {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Status log text to track what's happening */
+        .status-text {
+            font-size: 0.85rem;
+            margin-top: 15px;
+            color: #666;
+            font-style: italic;
+        }
+        body.dark-theme .status-text {
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Theme Storage Manager</h2>
+        
+        <!-- Theme Select Dropdown -->
+        <div class="control-group">
+            <label for="theme-select"><strong>Choose Theme:</strong></label>
+            <select id="theme-select">
+                <option value="light">Light Mode</option>
+                <option value="dark">Dark Mode</option>
+            </select>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-container">
+            <button id="save-local-btn" class="btn-local">Save using LocalStorage (Permanent)</button>
+            <button id="save-session-btn" class="btn-session">Save using SessionStorage (Tab Only)</button>
+            <button id="clear-btn" class="btn-clear">Clear Preferences</button>
+        </div>
+
+        <!-- Status display -->
+        <div id="status" class="status-text">No saved preference loaded.</div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const themeSelect = document.getElementById('theme-select');
+        const saveLocalBtn = document.getElementById('save-local-btn');
+        const saveSessionBtn = document.getElementById('save-session-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const statusText = document.getElementById('status');
+
+        // Helper function to apply the theme to the page UI
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeSelect.value = 'dark';
+            } else {
+                document.body.classList.remove('dark-theme');
+                themeSelect.value = 'light';
+            }
+        }
+
+        // 1. Initial Check on Page Load
+        const localTheme = localStorage.getItem('userTheme');
+        const sessionTheme = sessionStorage.getItem('userTheme');
+
+        if (localTheme) {
+            applyTheme(localTheme);
+            statusText.textContent = `Loaded "${localTheme}" theme from LocalStorage.`;
+        } else if (sessionTheme) {
+            applyTheme(sessionTheme);
+            statusText.textContent = `Loaded "${sessionTheme}" theme from SessionStorage.`;
+        } else {
+            statusText.textContent = "No saved preference found. Using system/default light theme.";
+        }
+
+        // Optional Live-Preview: Changes theme immediately when dropdown changes
+        themeSelect.addEventListener('change', () => {
+            applyTheme(themeSelect.value);
+            statusText.textContent = "Previewing selected theme (unsaved)...";
+        });
+
+        // 2. Action: Save to LocalStorage
+        saveLocalBtn.addEventListener('click', () => {
+            const selectedValue = themeSelect.value;
+            localStorage.setItem('userTheme', selectedValue);
+            
+            // Explicitly clean up conflicting storage in sessionStorage
+            sessionStorage.removeItem('userTheme'); 
+            
+            applyTheme(selectedValue);
+            statusText.textContent = `Saved "${selectedValue}" permanently to LocalStorage!`;
+        });
+
+        // 3. Action: Save to SessionStorage
+        saveSessionBtn.addEventListener('click', () => {
+            const selectedValue = themeSelect.value;
+            sessionStorage.setItem('userTheme', selectedValue);
+            
+            // Explicitly clean up conflicting storage in localStorage
+            localStorage.removeItem('userTheme');
+            
+            applyTheme(selectedValue);
+            statusText.textContent = `Saved "${selectedValue}" temporarily to SessionStorage!`;
+        });
+
+        // 4. Action: Clear Preferences
+        clearBtn.addEventListener('click', () => {
+            localStorage.removeItem('userTheme');
+            sessionStorage.removeItem('userTheme');
+            
+            // Reset to default light mode view
+            applyTheme('light');
+            statusText.textContent = "Preferences cleared. Reset back to Light theme.";
+        });
+    </script>
+</body>
+</html>
