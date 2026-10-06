@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart Total Calculator – Practical 4</title>
+  <style>
+    /* --- THEME VARIABLES --- */
+    :root {
+      --bg: #f7f8fa;
+      --card: #ffffff;
+      --primary: #4f46e5;
+      --danger: #e53e3e;
+      --text: #1a202c;
+      --muted: #718096;
+      --border: #e2e8f0;
+      --input-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --primary: #bb86fc;
+      --danger: #cf6679;
+      --text: #e0e0e0;
+      --muted: #a0a0a0;
+      --border: #333333;
+      --input-bg: #2d2d2d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      background: var(--bg); 
+      color: var(--text); 
+      line-height: 1.6; 
+      padding: 2rem 1rem; 
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container { max-width: 800px; margin: 0 auto; }
+
+    /* Header with Toggle */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 { font-size: 1.6rem; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; }
+
+    .theme-toggle-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .theme-toggle-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .card { 
+      background: var(--card); 
+      border-radius: 10px; 
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06); 
+      padding: 1.5rem; 
+      margin-bottom: 1.5rem; 
+      border: 1px solid var(--border);
+    }
+    
+    .card h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 1rem; }
+    
+    .form-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 0.75rem; }
+    .form-group { display: flex; flex-direction: column; flex: 1; min-width: 100px; }
+    .form-group label { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.2rem; }
+    
+    .form-group input, .form-group select { 
+      padding: 0.5rem 0.6rem; 
+      border: 1px solid var(--border); 
+      border-radius: 6px; 
+      font-size: 0.9rem; 
+      background: var(--input-bg);
+      color: var(--text);
+    }
+
+    button { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+    button:hover { opacity: 0.85; }
+    
+    .btn-add { background: var(--primary); color: #fff; align-self: flex-end; }
+    [data-theme="dark"] .btn-add { color: #000; } 
+
+    .btn-remove { background: transparent; color: var(--danger); padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+    .btn-calc { width: 100%; padding: 0.9rem; background: var(--primary); color: #fff; font-size: 1rem; border-radius: 8px; margin-top: 0.5rem; }
+    [data-theme="dark"] .btn-calc { color: #000; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 0.5rem; }
+    th { text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--muted); padding: 0.4rem 0; border-bottom: 2px solid var(--border); }
+    td { padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+    td:last-child, th:last-child { text-align: right; }
+    
+    .summary-line { display: flex; justify-content: space-between; padding: 0.4rem 0; }
+    .summary-line.total { font-size: 1.25rem; font-weight: 700; border-top: 2px solid var(--text); margin-top: 0.5rem; padding-top: 0.6rem; }
+    .discount-val { color: var(--danger); }
+    
+    .empty { color: var(--muted); font-style: italic; font-size: 0.9rem; padding: 0.5rem 0; }
+    
+    .tag { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-right: 0.3rem; }
+    .tag-percentage { background: #f0fff4; color: #276749; }
+    .tag-fixed { background: #fffff0; color: #975a16; }
+    .tag-bogo { background: #ebf8ff; color: #2b6cb0; }
+    
+    [data-theme="dark"] .tag-percentage { background: #1a3a2a; color: #68d391; }
+    [data-theme="dark"] .tag-fixed { background: #3a3a1a; color: #f6e05e; }
+    [data-theme="dark"] .tag-bogo { background: #1a365d; color: #63b3ed; }
+
+    .method-note { font-size: 0.7rem; color: var(--muted); font-family: monospace; margin-top: 0.15rem; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <h1>🛒 Cart Total Calculator</h1>
+      <p class="subtitle">Soumya Bajirao &amp; 24070521146 | Practical 4</p>
+    </div>
+    <!-- THEME TOGGLE BUTTON -->
+    <button id="themeToggle" class="theme-toggle-btn">🌙 Dark Mode</button>
+  </header>
+
+  <!-- ADD CART ITEM -->
+  <div class="card">
+    <h2>Add Cart Item</h2>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label for="itemName">Item Name</label>
+        <input type="text" id="itemName" placeholder="e.g. Wireless Mouse">
+      </div>
+      <div class="form-group">
+        <label for="itemPrice">Price ($)</label>
+        <input type="number" id="itemPrice" min="0" step="0.01" placeholder="29.99">
+      </div>
+      <div class="form-group">
+        <label for="itemQty">Quantity</label>
+        <input type="number" id="itemQty" min="1" step="1" value="1">
+      </div>
+      <button class="btn-add" id="addItemBtn">Add Item</button>
+    </div>
+  </div>
+
+  <!-- CART ITEMS TABLE -->
+  <div class="card">
+    <h2>Cart Items</h2>
+    <table id="cartTable">
+      <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th>Line Total</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="empty" id="cartEmpty">No items yet.</p>
+  </div>
+
+  <!-- ADD DISCOUNT RULE -->
+  <div class="card">
+    <h2>Add Discount Rule</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ruleType">Type</label>
+        <select id="ruleType">
+          <option value="percentage">Percentage (%)</option>
+          <option value="fixed">Fixed ($)</option>
+          <option value="bogo">BOGO</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="ruleValue">Value</label>
+        <input type="number" id="ruleValue" min="0" step="0.01" placeholder="15">
+      </div>
+      <div class="form-group">
+        <label for="ruleMin">Min Items</label>
+        <input type="number" id="ruleMin" min="0" step="1" placeholder="3">
+      </div>
+      <button class="btn-add" id="addRuleBtn">Add Rule</button>
+    </div>
+  </div>
+
+  <!-- ACTIVE RULES -->
+  <div class="card">
+    <h2>Active Rules</h2>
+    <div id="rulesList"><p class="empty" id="rulesEmpty">No rules added.</p></div>
+  </div>
+
+  <!-- CALCULATE -->
+  <div class="card">
+    <h2>Order Summary</h2>
+    <div id="summaryOutput"><p class="empty">Click Calculate.</p></div>
+    <button class="btn-calc" id="calcBtn">Calculate Total</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  
+  // ─── 1. THEME TOGGLE LOGIC ───────────────────────────────────────
+  const themeToggleBtn = document.getElementById('themeToggle');
+  
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeToggleBtn.textContent = '☀️ Light Mode';
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      themeToggleBtn.textContent = '🌙 Dark Mode';
+    }
+  }
+
+  themeToggleBtn.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem('preferredTheme', newTheme);
+  });
+
+  // Load saved theme
+  const savedTheme = localStorage.getItem('preferredTheme');
+  if (savedTheme) applyTheme(savedTheme);
+
+
+  // ─── 2. APP LOGIC ────────────────────────────────────────────────
+  let cartItems = [];
+  let discountRules = [];
+  let nextId = 1;
+
+  // Helper Functions
+  function calculateSubtotal(items) {
+    return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }
+
+  function calculateBogoDiscount(items) {
+    const allPrices = items.flatMap(item => Array(item.quantity).fill(item.price)).sort((a, b) => a - b);
+    let discount = 0;
+    for (let i = 0; i < allPrices.length; i += 2) {
+      if (i + 1 < allPrices.length) discount += allPrices[i];
+    }
+    return discount;
+  }
+
+  function getCartTotal(items, rules) {
+    const subtotal = calculateSubtotal(items);
+    const totalQty = items.reduce((sum, item) => sum + item.quantity, 0);
+    
+    const applicableValues = rules.filter(rule => !rule.minItems || totalQty >= rule.minItems).map(rule => {
+      if (rule.type === 'percentage') return subtotal * (rule.value / 100);
+      if (rule.type === 'fixed') return Math.min(rule.value, subtotal);
+      if (rule.type === 'bogo') return calculateBogoDiscount(items);
+      return 0;
+    });
+
+    const bestDiscount = Math.max(0, ...applicableValues);
+    const finalTotal = Math.max(0, subtotal - bestDiscount);
+
+    return {
+      itemCount: totalQty,
+      subtotal: subtotal.toFixed(2),
+      discount: bestDiscount.toFixed(2),
+      total: finalTotal.toFixed(2)
+    };
+  }
+
+  // Render Functions
+  function renderCart() {
+    const tbody = document.querySelector('#cartTable tbody');
+    document.getElementById('cartEmpty').style.display = cartItems.length ? 'none' : 'block';
+    
+    tbody.innerHTML = cartItems.map(item => `
+      <tr>
+        <td>${item.name}</td>
+        <td>$${item.price.toFixed(2)}</td>
+        <td>${item.quantity}</td>
+        <td>$${(item.price * item.quantity).toFixed(2)}</td>
+        <td><button class="btn-remove" onclick="removeItem(${item.id})">✕</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderRules() {
+    const container = document.getElementById('rulesList');
+    document.getElementById('rulesEmpty').style.display = discountRules.length ? 'none' : 'block';
+    
+    container.innerHTML = discountRules.map((rule, idx) => {
+      let label = rule.type === 'percentage' ? `${rule.value}% off` : rule.type === 'fixed' ? `$${rule.value} off` : 'BOGO';
+      return `<div style="padding:0.3rem 0;display:flex;justify-content:space-between;">
+        <span><span class="tag tag-${rule.type}">${rule.type}</span> ${label}</span>
+        <button class="btn-remove" onclick="removeRule(${idx})">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  // Event Listeners
+  document.getElementById('addItemBtn').addEventListener('click', () => {
+    const name = document.getElementById('itemName').value.trim();
+    const price = parseFloat(document.getElementById('itemPrice').value);
+    const qty = parseInt(document.getElementById('itemQty').value);
+
+    if(name && price > 0 && qty > 0) {
+      cartItems.push({ id: nextId++, name, price, quantity: qty });
+      document.getElementById('itemName').value = '';
+      document.getElementById('itemPrice').value = '';
+      renderCart();
+    } else {
+      alert("Please enter valid details");
+    }
+  });
+
+  document.getElementById('addRuleBtn').addEventListener('click', () => {
+    const type = document.getElementById('ruleType').value;
+    const value = parseFloat(document.getElementById('ruleValue').value);
+    const min = document.getElementById('ruleMin').value ? parseInt(document.getElementById('ruleMin').value) : null;
+
+    if(value >= 0) {
+      discountRules.push({ type, value, minItems: min });
+      document.getElementById('ruleValue').value = '';
+      document.getElementById('ruleMin').value = '';
+      renderRules();
+    }
+  });
+
+  document.getElementById('calcBtn').addEventListener('click', () => {
+    if(cartItems.length === 0) return alert("Cart is empty");
+    const summary = getCartTotal(cartItems, discountRules);
+    document.getElementById('summaryOutput').innerHTML = `
+      <div class="summary-line"><span>Subtotal:</span> <span>$${summary.subtotal}</span></div>
+      <div class="summary-line"><span>Discount:</span> <span class="discount-val">-$${summary.discount}</span></div>
+      <div class="summary-line total"><span>Total:</span> <span>$${summary.total}</span></div>
+    `;
+  });
+
+  // Global functions for inline onclick events
+  window.removeItem = (id) => {
+    cartItems = cartItems.filter(i => i.id !== id);
+    renderCart();
+  };
+  
+  window.removeRule = (idx) => {
+    discountRules.splice(idx, 1);
+    renderRules();
+  };
+});
+</script>
+</body>
+</html>
