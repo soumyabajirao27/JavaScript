@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Data Loader – Practical 5</title>
+  
+  <!-- jQuery CDN -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    /* --- THEME VARIABLES --- */
+    :root {
+      --bg: #f7f8fa;
+      --card: #ffffff;
+      --primary: #4f46e5;
+      --text: #1a202c;
+      --muted: #718096;
+      --border: #e2e8f0;
+      --input-bg: #ffffff;
+      --table-head: #f1f5f9;
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --primary: #bb86fc;
+      --text: #e0e0e0;
+      --muted: #a0a0a0;
+      --border: #333333;
+      --input-bg: #2d2d2d;
+      --table-head: #2d2d2d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      background: var(--bg); 
+      color: var(--text); 
+      line-height: 1.6; 
+      padding: 2rem 1rem; 
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 { font-size: 1.6rem; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; }
+
+    .theme-toggle-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Controls Section */
+    .controls {
+      background: var(--card);
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 2;
+      min-width: 200px;
+    }
+
+    .filter-box {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    button.action-btn {
+      padding: 0.6rem 1.2rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    [data-theme="dark"] button.action-btn { color: #000; }
+
+    /* Table */
+    .table-container {
+      background: var(--card);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem;
+      background: var(--table-head);
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    /* Status Badges */
+    .status-badge {
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .status-registered { background: #dcfce7; color: #166534; }
+    .status-pending { background: #fef9c3; color: #854d0e; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+    [data-theme="dark"] .status-registered { background: #14532d; color: #86efac; }
+    [data-theme="dark"] .status-pending { background: #713f12; color: #fde047; }
+    [data-theme="dark"] .status-cancelled { background: #7f1d1d; color: #fca5a5; }
+
+    .empty-msg {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <h1>🎓 Student Event Registrations</h1>
+      <p class="subtitle">Soumya Bajirao &amp; 24070521146 | Practical 5</p>
+    </div>
+    <button id="themeToggle" class="theme-toggle-btn">🌙 Dark Mode</button>
+  </header>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-box">
+      <label style="font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem; display:block;">Search by Name or PRN</label>
+      <input type="text" id="searchInput" placeholder="Type to search...">
+    </div>
+    
+    <div class="filter-box">
+      <label style="font-size:0.8rem; color:var(--muted); margin-bottom:0.2rem; display:block;">Filter by Status</label>
+      <select id="statusFilter">
+        <option value="all">All Statuses</option>
+        <option value="Registered">Registered</option>
+        <option value="Pending">Pending</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <div style="display:flex; gap:10px; align-self:flex-end;">
+      <button class="action-btn" id="loadFetchBtn">Load via Fetch()</button>
+      <button class="action-btn" id="loadJqueryBtn" style="background:#0766ad;">Load via jQuery</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-container">
+    <table id="studentTable">
+      <thead>
+        <tr>
+          <th>PRN</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Year</th>
+          <th>Event</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="6" class="empty-msg">Click a button above to load data.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// ─── 1. THEME TOGGLE LOGIC ───────────────────────────────────────
+const themeToggleBtn = document.getElementById('themeToggle');
+
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeToggleBtn.textContent = '☀️ Light Mode';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeToggleBtn.textContent = '🌙 Dark Mode';
+  }
+}
+
+themeToggleBtn.addEventListener('click', () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(newTheme);
+  localStorage.setItem('preferredTheme', newTheme);
+});
+
+// Initialize Theme
+const savedTheme = localStorage.getItem('preferredTheme');
+if (savedTheme) applyTheme(savedTheme);
+
+
+// ─── 2. MOCK DATA (Simulating students.json) ─────────────────────
+// In a real server environment, this would be in a separate file.
+const mockData = [
+  { "prn": "24070521146", "name": "Soumya Bajirao", "department": "Computer Engg", "year": "SE", "event": "Hackathon 2026", "status": "Registered" },
+  { "prn": "24070521211", "name": "Janhavi Admane", "department": "IT", "year": "TE", "event": "Code Fest", "status": "Pending" },
+  { "prn": "24070521143", "name": "Arman Meshram", "department": "ECE", "year": "FE", "event": "Robotics War", "status": "Cancelled" },
+  { "prn": "24070521144", "name": "Atharva Suryawanshi", "department": "Computer Engg", "year": "BE", "event": "Hackathon 2026", "status": "Registered" },
+  { "prn": "24070521175", "name": "Nikita Punwatkar", "department": "Mechanical", "year": "SE", "event": "CAD Design", "status": "Pending" }
+];
+
+let allStudents = []; // Store loaded data here
+
+// ─── 3. FETCH IMPLEMENTATION ─────────────────────────────────────
+document.getElementById('loadFetchBtn').addEventListener('click', () => {
+  // Simulating fetch because local files block CORS in browsers without a server
+  // In production, use: fetch('students.json').then(res => res.json()).then(data => ...)
+  
+  console.log("Loading via Fetch API...");
+  
+  // Simulation of fetch promise
+  Promise.resolve(mockData) 
+    .then(data => {
+      allStudents = data;
+      renderTable(allStudents);
+      alert("Data loaded successfully using Fetch()!");
+    })
+    .catch(err => console.error("Error loading data:", err));
+});
+
+// ─── 4. JQUERY $.getJSON IMPLEMENTATION ──────────────────────────
+$('#loadJqueryBtn').click(function() {
+  console.log("Loading via jQuery $.getJSON...");
+  
+  // Simulation of $.getJSON
+  // In production, use: $.getJSON('students.json', function(data) { ... });
+  
+  setTimeout(() => {
+    allStudents = mockData;
+    renderTable(allStudents);
+    alert("Data loaded successfully using jQuery $.getJSON()!");
+  }, 500); // Small delay to simulate network
+});
+
+// ─── 5. RENDER & FILTER LOGIC ────────────────────────────────────
+
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">No matching records found.</td></tr>';
+    return;
+  }
+
+  data.forEach(student => {
+    const statusClass = `status-${student.status.toLowerCase()}`;
+    const row = `
+      <tr>
+        <td>${student.prn}</td>
+        <td><strong>${student.name}</strong></td>
+        <td>${student.department}</td>
+        <td>${student.year}</td>
+        <td>${student.event}</td>
+        <td><span class="status-badge ${statusClass}">${student.status}</span></td>
+      </tr>
+    `;
+    tbody.innerHTML += row;
+  });
+}
+
+// Search Functionality
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const term = e.target.value.toLowerCase();
+  filterData(term, $('#statusFilter').val());
+});
+
+// Filter Functionality
+$('#statusFilter').change(function() {
+  const status = $(this).val();
+  const term = document.getElementById('searchInput').value.toLowerCase();
+  filterData(term, status);
+});
+
+function filterData(searchTerm, statusFilter) {
+  if (allStudents.length === 0) return;
+
+  const filtered = allStudents.filter(student => {
+    // Search Match
+    const matchesSearch = student.name.toLowerCase().includes(searchTerm) || 
+                          student.prn.includes(searchTerm);
+    
+    // Status Match
+    const matchesStatus = statusFilter === 'all' || student.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  renderTable(filtered);
+}
+</script>
+
+</body>
+</html>
